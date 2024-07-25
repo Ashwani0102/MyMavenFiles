@@ -11,15 +11,15 @@ node('built-in')
     }
     stage('ContDeploy_Master')
     {
-        cicd.newDeploy("ScriptedPipelinewithSharedLibrary","172.31.37.161","testingapplication")
+        cicd.newDeploy("env.WORKSPACE","172.31.37.161","testingapplication")
     }
     stage('ContTest_Master')
     {
         cicd.gitdownload("https://github.com/intelliqittrainings/FunctionalTesting.git")
-        cicd.seleniumTesting("ScriptedPipelinewithSharedLibrary")
+        cicd.seleniumTesting("env.WORKSPACE")
     }
     stage('ContDelivery_Master')
     {
-        cicd.newDeploy("ScriptedPipelinewithSharedLibrary","172.31.40.146","prodapplication")
+        cicd.newDeploy("env.WORKSPACE","172.31.40.146","prodapplication")
     }
 }
