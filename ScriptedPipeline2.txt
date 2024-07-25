@@ -1,0 +1,63 @@
+node('built-in') 
+{
+  stage('ContinuousDownload') 
+  {
+    try
+      {
+        git 'https://github.com/intelliqittrainings/maven.git'
+      }
+    catch(Exception e1)
+      {
+        mail bcc: '', body: 'Jenkins is unable to download from remote github', cc: '', from: '', replyTo: '', subject: 'Download failed', to: 'gitadmin@outlook.com'
+        exit(1)
+      }
+  } 
+  stage('ContinuousBuild') 
+  {
+    try
+      {
+        sh label: '', script: 'mvn package'
+      }
+    catch(Exception e2)
+      {
+        mail bcc: '', body: 'Jenkins is unable to create an artifact from the code', cc: '', from: '', replyTo: '', subject: 'Build failed', to: 'developers@outlook.com'
+        exit(1)
+      }
+  } 
+  stage('ContinuousDeployment') 
+  {
+    try
+      {
+        deploy adapters: [tomcat9(credentialsId: 'ef678331-066b-45af-a455-74c0f15673f8', path: '', url: 'http://172.31.37.161:8080')], contextPath: 'testscript', war: '**/*.war'
+      }
+    catch(Exception e3)
+      {
+        mail bcc: '', body: 'Jenkins is unable to deploy into tomcat on the QaServers', cc: '', from: '', replyTo: '', subject: 'Deployment failed', to: 'middleware@outlook.com'
+        exit(1)
+      }
+  }
+  stage('ContinuousTesting') 
+  {
+    try
+      {
+        git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+        sh 'java -jar /home/ubuntu/.jenkins/workspace/ScriptedPipeline2/testing.jar'
+      }
+    catch(Exception e4)
+      {
+        mail bcc: '', body: 'Functional testing of the app on QAServers failed', cc: '', from: '', replyTo: '', subject: 'Testing failed', to: 'testers@outlook.com'
+        exit(1)
+      }
+  }
+  stage('ContinuousDelivery') 
+  {
+    try
+      {
+        deploy adapters: [tomcat9(credentialsId: 'ef678331-066b-45af-a455-74c0f15673f8', path: '', url: 'http://172.31.40.146:8080')], contextPath: 'prodscript', war: '**/*.war' 
+      }
+    catch(Exception e5)
+      {
+        mail bcc: '', body: 'Unable to deploy into ProdServers', cc: '', from: '', replyTo: '', subject: 'Delivery failed', to: 'delevery@outlook.com'
+      }
+  }
+}

@@ -1,0 +1,14 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('List of Environment Variable')
+        {
+            steps
+            {
+                sh "printenv | sort"
+            }
+        }
+    }
+}

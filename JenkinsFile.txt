@@ -1,0 +1,25 @@
+@Library("mylibrary")_
+node('built-in')
+{
+    stage('ContDownload_Master')
+    {
+        cicd.gitdownload("https://github.com/intelliqittrainings/maven.git")
+    }
+    stage('ContBuild_Master')
+    {
+        cicd.newMaven()
+    }
+    stage('ContDeploy_Master')
+    {
+        cicd.newDeploy("ScriptedPipelinewithSharedLibrary","172.31.37.161","testingapplication")
+    }
+    stage('ContTest_Master')
+    {
+        cicd.gitdownload("https://github.com/intelliqittrainings/FunctionalTesting.git")
+        cicd.seleniumTesting("ScriptedPipelinewithSharedLibrary")
+    }
+    stage('ContDelivery_Master')
+    {
+        cicd.newDeploy("ScriptedPipelinewithSharedLibrary","172.31.40.146","prodapplication")
+    }
+}

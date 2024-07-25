@@ -1,0 +1,98 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('Continuous Download')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        git 'https://github.com/intelliqittrainings/maven.git'
+                    }
+                    catch(Exception e1)
+                    {
+                       mail bcc: '', body: 'Go and check download section', cc: '', from: '', replyTo: '', subject: 'CI download error', to: 'git.admin@gmail.com' 
+                       exit(1)
+                    }
+                }
+            }
+        }
+        stage('Continuous Build')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        sh 'mvn package'
+                    }
+                    catch(Exception e2)
+                    {
+                       mail bcc: '', body: 'Go and check build section', cc: '', from: '', replyTo: '', subject: 'CI build error', to: 'developer@gmail.com'
+                       exit(2)
+                    }
+                }
+            }
+        }
+        stage('Continuous Deploy')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        deploy adapters: [tomcat9(credentialsId: 'ef678331-066b-45af-a455-74c0f15673f8', path: '', url: 'http://172.31.37.161:8080')], contextPath: 'testdec', war: '**/*.war'
+                    }
+                    catch(Exception e3)
+                    {
+                       mail bcc: '', body: 'Go and check deploy section', cc: '', from: '', replyTo: '', subject: 'CI deploy error', to: 'middleware@gmail.com' 
+                       exit(3)
+                    }
+                }
+            }
+        }
+        stage('Continuous Test')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                        sh 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline1/testing.jar'
+                    }
+                    catch(Exception e4)
+                    {
+                       mail bcc: '', body: 'Go and check test section', cc: '', from: '', replyTo: '', subject: 'CI test error', to: 'tester@gmail.com' 
+                       exit(4)
+                    }
+                }
+            }
+        }
+        stage('Continuous Delivery')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                        deploy adapters: [tomcat9(credentialsId: 'ef678331-066b-45af-a455-74c0f15673f8', path: '', url: 'http://172.31.40.146:8080')], contextPath: 'proddec', war: '**/*.war'
+                    }
+                    catch(Exception e5)
+                    {
+                       mail bcc: '', body: 'Go and check delivery section', cc: '', from: '', replyTo: '', subject: 'CI delivery error', to: 'changemanager@gmail.com' 
+                       exit(5)
+                    }
+                }
+            }
+        }
+    }
+}

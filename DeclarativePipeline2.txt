@@ -1,0 +1,47 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('Continuous Download')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/maven.git'
+            }
+        }
+        stage('Continuous Build')
+        {
+            steps
+            {
+                sh 'mvn package'
+            }
+        }
+        stage('Continuous Deploy')
+        {
+            steps
+            {
+                deploy adapters: [tomcat9(credentialsId: 'ef678331-066b-45af-a455-74c0f15673f8', path: '', url: 'http://172.31.37.161:8080')], contextPath: 'testdec', war: '**/*.war'
+            }
+        }
+        stage('Continuous Test')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                sh 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline1/testing.jar'
+            }
+        }
+    }
+    post
+    {
+        success
+        {
+            deploy adapters: [tomcat9(credentialsId: 'ef678331-066b-45af-a455-74c0f15673f8', path: '', url: 'http://172.31.40.146:8080')], contextPath: 'proddec', war: '**/*.war'
+        }
+        failure
+        {
+            mail bcc: '', body: 'Go and check the pipeline.', cc: '', from: '', replyTo: '', subject: 'Pipeline failure', to: 'ashwanimehta0102@gmail.com'
+        }
+    }
+}
