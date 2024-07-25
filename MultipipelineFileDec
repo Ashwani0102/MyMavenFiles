@@ -45,7 +45,7 @@ pipeline
        }
      }
    }
-   stage('ContDownload_Master')
+   stage('ContDelivery_Master')
    {
      steps
      {
