@@ -1,0 +1,48 @@
+@Library('mylibrary')_
+pipeline
+{
+  agent any
+  stages
+  {
+   stage('ContDownload_Loans')
+   {
+     steps
+     {
+       script
+       { 
+         cicd.gitdownload("https://github.com/intelliqittrainings/maven.git")
+       }
+     }
+   }
+   stage('ContBuild_Loans')
+   {
+     steps
+     {
+       script
+       { 
+         cicd.newMaven()
+       }
+     }
+   }
+   stage('ContDeploy_Loans')
+   {
+     steps
+     {
+       script
+       { 
+         cicd.newDeploy("${env.WORKSPACE}","172.31.37.161","finaltest")
+       }
+     }
+   }
+   stage('ContTest_Loans')
+   {
+     steps
+     {
+       script
+       { 
+         cicd.gitdownload("https://github.com/intelliqittrainings/FunctionalTesting.git")
+         cicd.seleniumTesting("${WORKSPACE}")
+       }
+     }
+   }
+}
