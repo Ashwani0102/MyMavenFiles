@@ -16,10 +16,10 @@ node('built-in')
     stage('ContTest_Master')
     {
         cicd.gitdownload("https://github.com/intelliqittrainings/FunctionalTesting.git")
-        cicd.seleniumTesting("${env.WORKSPACE})
+        cicd.seleniumTesting("${env.WORKSPACE}")
     }
     stage('ContDelivery_Master')
     {
-        cicd.newDeploy("${env.WORKSPACE},"172.31.40.146","prodapplication")
+        cicd.newDeploy("${env.WORKSPACE}","172.31.40.146","prodapplication")
     }
 }
