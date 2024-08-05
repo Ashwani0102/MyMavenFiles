@@ -1,0 +1,73 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('Download')
+        {
+            steps
+            {
+               git 'https://github.com/intelliqittrainings/maven.git'
+            }
+        }
+        stage('Build')
+        {
+            steps
+            {
+                sh 'mvn package'
+            }
+        }
+        stage('Create docker file')
+        {
+            steps
+            {
+                sh 'cp /var/lib/jenkins/workspace/End-to-End_Project/webapp/target/webapp.war .'
+                sh '''cat>dockerfile <<EOF
+FROM tomee
+COPY webapp.war /usr/local/tomee/webapps/myapp.war
+EOF'''
+            }
+        }
+        stage('Create docker image')
+        {
+            steps
+            {
+                sh 'docker build -t ashwani0102/mymaven .'
+            }
+        }
+        stage('Push Docker image to docker hub')
+        {
+            steps
+            {
+                sh 'docker push ashwani0102/mymaven'
+            }
+        }
+        stage('Deploying Docker container on Multiple QAServer')
+        {
+            steps
+            {
+                sh 'ssh ubuntu@172.31.8.48 ansible-playbook /home/ubuntu/deploy_docker_image.yml -b'
+            }
+        }
+        stage('Testing')
+        {
+            steps
+            {
+                git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
+                sh 'java -jar /var/lib/jenkins/workspace/End-to-End_Project/testing.jar'
+            }
+        }
+        stage('Production Deployment')
+        {
+           steps 
+             
+              {	  
+                 script 
+                  { 
+                      sh 'ssh ec2-user@172.31.0.59 kubectl apply -f /home/ec2-user/deployment_service.yml'
+                  }  
+              }  
+            
+        }
+    }
+}    
