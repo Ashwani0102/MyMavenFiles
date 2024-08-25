@@ -41,7 +41,7 @@ pipeline
        script
        { 
          cicd.gitdownload("https://github.com/intelliqittrainings/FunctionalTesting.git")
-         cicd.seleniumTesting("${WORKSPACE}")
+         cicd.seleniumTesting("${env.WORKSPACE}")
        }
      }
    }
